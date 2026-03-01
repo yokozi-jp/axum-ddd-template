@@ -1,6 +1,5 @@
 //! Get user use case
 
-use crate::features::user::application::port::{GetUser, ListUsers};
 use crate::features::user::domain::{User, UserId, UserRepository};
 use crate::shared::domain::DomainError;
 use std::sync::Arc;
@@ -15,11 +14,8 @@ impl GetUserUseCase {
     pub fn new(repository: Arc<dyn UserRepository>) -> Self {
         Self { repository }
     }
-}
 
-#[async_trait::async_trait]
-impl GetUser for GetUserUseCase {
-    async fn execute(&self, id: &str) -> Result<User, DomainError> {
+    pub async fn execute(&self, id: &str) -> Result<User, DomainError> {
         let user_id = UserId::new(id)?;
         self.repository
             .find_by_id(&user_id)
@@ -38,11 +34,8 @@ impl ListUsersUseCase {
     pub fn new(repository: Arc<dyn UserRepository>) -> Self {
         Self { repository }
     }
-}
 
-#[async_trait::async_trait]
-impl ListUsers for ListUsersUseCase {
-    async fn execute(&self) -> Result<Vec<User>, DomainError> {
+    pub async fn execute(&self) -> Result<Vec<User>, DomainError> {
         self.repository.find_all().await
     }
 }

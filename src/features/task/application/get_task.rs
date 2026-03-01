@@ -1,6 +1,5 @@
 //! Get task use case
 
-use crate::features::task::application::port::{GetTask, ListTasks};
 use crate::features::task::domain::{Task, TaskId, TaskRepository};
 use crate::shared::domain::{DomainError, UserId};
 use std::sync::Arc;
@@ -15,11 +14,8 @@ impl GetTaskUseCase {
     pub fn new(repository: Arc<dyn TaskRepository>) -> Self {
         Self { repository }
     }
-}
 
-#[async_trait::async_trait]
-impl GetTask for GetTaskUseCase {
-    async fn execute(&self, id: &str) -> Result<Task, DomainError> {
+    pub async fn execute(&self, id: &str) -> Result<Task, DomainError> {
         let task_id = TaskId::new(id)?;
         self.repository
             .find_by_id(&task_id)
@@ -38,12 +34,9 @@ impl ListTasksUseCase {
     pub fn new(repository: Arc<dyn TaskRepository>) -> Self {
         Self { repository }
     }
-}
 
-#[async_trait::async_trait]
-impl ListTasks for ListTasksUseCase {
     /// Pass `Some(user_id)` to filter by user, `None` to list all
-    async fn execute(&self, user_id: Option<&str>) -> Result<Vec<Task>, DomainError> {
+    pub async fn execute(&self, user_id: Option<&str>) -> Result<Vec<Task>, DomainError> {
         match user_id {
             Some(id) => {
                 let uid = UserId::new(id)?;

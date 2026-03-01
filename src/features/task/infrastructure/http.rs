@@ -67,8 +67,7 @@ pub async fn create_task(
     Json(body): Json<CreateTaskRequest>,
 ) -> ApiResult<(StatusCode, Json<TaskResponse>)> {
     let task = state
-        .task
-        .create
+        .create_task
         .execute(CreateTaskCommand { user_id: body.user_id, title: body.title, description: body.description })
         .await
         .map_err(ApiError::from)?;
@@ -80,7 +79,7 @@ pub async fn get_task(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<TaskResponse>> {
-    let task = state.task.get.execute(&id).await.map_err(ApiError::from)?;
+    let task = state.get_task.execute(&id).await.map_err(ApiError::from)?;
     Ok(Json(task.into()))
 }
 
@@ -90,8 +89,7 @@ pub async fn list_tasks(
     Query(query): Query<TaskQuery>,
 ) -> ApiResult<Json<Vec<TaskResponse>>> {
     let tasks = state
-        .task
-        .list
+        .list_tasks
         .execute(query.user_id.as_deref())
         .await
         .map_err(ApiError::from)?;
@@ -103,7 +101,7 @@ pub async fn complete_task(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<TaskResponse>> {
-    let task = state.task.complete.execute(&id).await.map_err(ApiError::from)?;
+    let task = state.complete_task.execute(&id).await.map_err(ApiError::from)?;
     Ok(Json(task.into()))
 }
 
@@ -112,6 +110,6 @@ pub async fn delete_task(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> ApiResult<StatusCode> {
-    state.task.delete.execute(&id).await.map_err(ApiError::from)?;
+    state.delete_task.execute(&id).await.map_err(ApiError::from)?;
     Ok(StatusCode::NO_CONTENT)
 }

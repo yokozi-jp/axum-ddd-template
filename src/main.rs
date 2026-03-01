@@ -7,18 +7,12 @@ use axum::{routing::get, Router};
 use features::task::application::{
     CompleteTaskUseCase, CreateTaskUseCase, DeleteTaskUseCase, GetTaskUseCase, ListTasksUseCase,
 };
-use features::task::application::{CompleteTask, CreateTask, DeleteTask, GetTask, ListTasks};
 use features::task::infrastructure::{http as task_http, PgTaskRepository};
 use features::user::application::{
     CreateUserUseCase, DeleteUserUseCase, GetUserUseCase, ListUsersUseCase, UpdateUserUseCase,
 };
-use features::user::application::{CreateUser, DeleteUser, GetUser, ListUsers, UpdateUser};
 use features::user::infrastructure::{http as user_http, PgUserRepository};
-use shared::infrastructure::{
-    config::Config,
-    database,
-    http::health_check,
-};
+use shared::infrastructure::{config::Config, database, http::health_check};
 use std::sync::Arc;
 use std::time::Duration;
 use tower::ServiceBuilder;
@@ -26,28 +20,18 @@ use tower_http::{timeout::TimeoutLayer, trace::TraceLayer};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-/// User feature state
-pub struct UserState {
-    pub(crate) create: Box<dyn CreateUser>,
-    pub(crate) get: Box<dyn GetUser>,
-    pub(crate) list: Box<dyn ListUsers>,
-    pub(crate) update: Box<dyn UpdateUser>,
-    pub(crate) delete: Box<dyn DeleteUser>,
-}
-
-/// Task feature state
-pub struct TaskState {
-    pub(crate) create: Box<dyn CreateTask>,
-    pub(crate) get: Box<dyn GetTask>,
-    pub(crate) list: Box<dyn ListTasks>,
-    pub(crate) complete: Box<dyn CompleteTask>,
-    pub(crate) delete: Box<dyn DeleteTask>,
-}
-
 /// Application state shared across handlers
 pub struct AppState {
-    pub(crate) user: UserState,
-    pub(crate) task: TaskState,
+    pub(crate) create_user: CreateUserUseCase,
+    pub(crate) get_user: GetUserUseCase,
+    pub(crate) list_users: ListUsersUseCase,
+    pub(crate) update_user: UpdateUserUseCase,
+    pub(crate) delete_user: DeleteUserUseCase,
+    pub(crate) create_task: CreateTaskUseCase,
+    pub(crate) get_task: GetTaskUseCase,
+    pub(crate) list_tasks: ListTasksUseCase,
+    pub(crate) complete_task: CompleteTaskUseCase,
+    pub(crate) delete_task: DeleteTaskUseCase,
 }
 
 #[tokio::main]
@@ -68,20 +52,16 @@ async fn main() -> anyhow::Result<()> {
         Arc::new(PgTaskRepository::new(pool));
 
     let state = Arc::new(AppState {
-        user: UserState {
-            create: Box::new(CreateUserUseCase::new(Arc::clone(&user_repo))),
-            get: Box::new(GetUserUseCase::new(Arc::clone(&user_repo))),
-            list: Box::new(ListUsersUseCase::new(Arc::clone(&user_repo))),
-            update: Box::new(UpdateUserUseCase::new(Arc::clone(&user_repo))),
-            delete: Box::new(DeleteUserUseCase::new(Arc::clone(&user_repo))),
-        },
-        task: TaskState {
-            create: Box::new(CreateTaskUseCase::new(Arc::clone(&task_repo))),
-            get: Box::new(GetTaskUseCase::new(Arc::clone(&task_repo))),
-            list: Box::new(ListTasksUseCase::new(Arc::clone(&task_repo))),
-            complete: Box::new(CompleteTaskUseCase::new(Arc::clone(&task_repo))),
-            delete: Box::new(DeleteTaskUseCase::new(Arc::clone(&task_repo))),
-        },
+        create_user: CreateUserUseCase::new(Arc::clone(&user_repo)),
+        get_user: GetUserUseCase::new(Arc::clone(&user_repo)),
+        list_users: ListUsersUseCase::new(Arc::clone(&user_repo)),
+        update_user: UpdateUserUseCase::new(Arc::clone(&user_repo)),
+        delete_user: DeleteUserUseCase::new(Arc::clone(&user_repo)),
+        create_task: CreateTaskUseCase::new(Arc::clone(&task_repo)),
+        get_task: GetTaskUseCase::new(Arc::clone(&task_repo)),
+        list_tasks: ListTasksUseCase::new(Arc::clone(&task_repo)),
+        complete_task: CompleteTaskUseCase::new(Arc::clone(&task_repo)),
+        delete_task: DeleteTaskUseCase::new(Arc::clone(&task_repo)),
     });
 
     let app = Router::new()

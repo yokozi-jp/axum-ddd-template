@@ -1,6 +1,5 @@
 //! Delete task use case
 
-use crate::features::task::application::port::DeleteTask;
 use crate::features::task::domain::{TaskId, TaskRepository};
 use crate::shared::domain::DomainError;
 use std::sync::Arc;
@@ -15,11 +14,8 @@ impl DeleteTaskUseCase {
     pub fn new(repository: Arc<dyn TaskRepository>) -> Self {
         Self { repository }
     }
-}
 
-#[async_trait::async_trait]
-impl DeleteTask for DeleteTaskUseCase {
-    async fn execute(&self, id: &str) -> Result<(), DomainError> {
+    pub async fn execute(&self, id: &str) -> Result<(), DomainError> {
         let task_id = TaskId::new(id)?;
 
         if !self.repository.delete(&task_id).await? {

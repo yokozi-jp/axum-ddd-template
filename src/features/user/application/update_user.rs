@@ -1,6 +1,5 @@
 //! Update user use case
 
-use crate::features::user::application::port::UpdateUser;
 use crate::features::user::domain::{User, UserId, UserRepository};
 use crate::shared::domain::DomainError;
 use std::sync::Arc;
@@ -24,11 +23,8 @@ impl UpdateUserUseCase {
     pub fn new(repository: Arc<dyn UserRepository>) -> Self {
         Self { repository }
     }
-}
 
-#[async_trait::async_trait]
-impl UpdateUser for UpdateUserUseCase {
-    async fn execute(&self, id: &str, command: UpdateUserCommand) -> Result<User, DomainError> {
+    pub async fn execute(&self, id: &str, command: UpdateUserCommand) -> Result<User, DomainError> {
         let user_id = UserId::new(id)?;
 
         let mut user = self

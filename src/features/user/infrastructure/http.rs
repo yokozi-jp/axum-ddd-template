@@ -64,8 +64,7 @@ pub async fn create_user(
     Json(body): Json<CreateUserRequest>,
 ) -> ApiResult<(StatusCode, Json<UserResponse>)> {
     let user = state
-        .user
-        .create
+        .create_user
         .execute(CreateUserCommand { name: body.name, email: body.email })
         .await
         .map_err(ApiError::from)?;
@@ -77,13 +76,13 @@ pub async fn get_user(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<UserResponse>> {
-    let user = state.user.get.execute(&id).await.map_err(ApiError::from)?;
+    let user = state.get_user.execute(&id).await.map_err(ApiError::from)?;
     Ok(Json(user.into()))
 }
 
 /// List all users
 pub async fn list_users(State(state): State<Arc<AppState>>) -> ApiResult<Json<Vec<UserResponse>>> {
-    let users = state.user.list.execute().await.map_err(ApiError::from)?;
+    let users = state.list_users.execute().await.map_err(ApiError::from)?;
     Ok(Json(users.into_iter().map(Into::into).collect()))
 }
 
@@ -94,8 +93,7 @@ pub async fn update_user(
     Json(body): Json<UpdateUserRequest>,
 ) -> ApiResult<Json<UserResponse>> {
     let user = state
-        .user
-        .update
+        .update_user
         .execute(&id, UpdateUserCommand { name: body.name, email: body.email })
         .await
         .map_err(ApiError::from)?;
@@ -107,6 +105,6 @@ pub async fn delete_user(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> ApiResult<StatusCode> {
-    state.user.delete.execute(&id).await.map_err(ApiError::from)?;
+    state.delete_user.execute(&id).await.map_err(ApiError::from)?;
     Ok(StatusCode::NO_CONTENT)
 }
