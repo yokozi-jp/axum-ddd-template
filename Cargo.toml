@@ -16,7 +16,7 @@ anyhow = "1.0.102"
 chrono = { version = "0.4", features = ["serde"] }
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono"] }
 dotenvy = "0.15"
-uuid = { version = "1.11", features = ["v4", "serde"] }
+uuid = { version = "1.23", features = ["v4", "serde"] }
 async-trait = "0.1"
 email_address = "0.2"
 
